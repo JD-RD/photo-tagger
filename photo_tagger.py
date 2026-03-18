@@ -133,11 +133,14 @@ def process_images(input_dir, known_encodings, known_names, model="hog", toleran
     return results, unknown_encodings, unknown_locations
 
 
-def cluster_unknowns(unknown_encodings, unknown_locations, results, min_cluster_size=2):
+def cluster_unknowns(results, unknown_encodings, unknown_locations, min_cluster_size=2):
     """Cluster unknown faces and assign labels like 'unknown_1', 'unknown_2', etc."""
     if len(unknown_encodings) < min_cluster_size:
         print(f"\nNot enough unknown faces ({len(unknown_encodings)}) for clustering")
         return results
+    
+    import numpy as np
+    X = np.array(unknown_encodings)
     
     print(f"\nClustering {len(unknown_encodings)} unknown faces...")
     
@@ -148,7 +151,7 @@ def cluster_unknowns(unknown_encodings, unknown_locations, results, min_cluster_
         # DBSCAN with eps tuned for 128D face embeddings
         clusterer = DBSCAN(eps=0.5, min_samples=min_cluster_size, metric='euclidean')
     
-    labels = clusterer.fit_predict(unknown_encodings)
+    labels = clusterer.fit_predict(X)
     
     # Assign cluster labels to results
     cluster_names = {}
@@ -264,8 +267,7 @@ def draw_boxes_on_images(results, output_dir):
                 draw.text((left + 2, top - text_height - 2), label, fill=(0, 0, 0), font=font)
             
             # Save tagged image
-            rel_path = Path(result['image_path']).relative_to(Path(result['image_path']).anchor.lstrip('/'))
-            out_file = output_path / rel_path.name
+            out_file = output_path / Path(result['image_path']).name
             counter = 1
             while out_file.exists():
                 stem = out_file.stem
