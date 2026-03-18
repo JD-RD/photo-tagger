@@ -15,7 +15,7 @@ from collections import defaultdict
 
 import cv2
 import face_recognition
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageOps
 from tqdm import tqdm
 import numpy as np
 
@@ -25,6 +25,19 @@ try:
 except ImportError:
     HDBSCAN_AVAILABLE = False
     from sklearn.cluster import DBSCAN
+
+
+def load_image_exif_corrected(path):
+    """
+    Load an image as a numpy array with EXIF orientation applied.
+    Without this, photos taken on phones are often sideways/upside-down,
+    causing face_recognition to miss faces entirely.
+    """
+    img = Image.open(path)
+    img = ImageOps.exif_transpose(img)   # handles all 8 EXIF orientations
+    if img.mode != "RGB":
+        img = img.convert("RGB")
+    return np.array(img)
 
 
 def load_known_faces(known_dir):
@@ -48,7 +61,7 @@ def load_known_faces(known_dir):
                 continue
                 
             try:
-                image = face_recognition.load_image_file(img_path)
+                image = load_image_exif_corrected(img_path)  # <-- was: face_recognition.load_image_file
                 encodings = face_recognition.face_encodings(image)
                 
                 if encodings:
@@ -77,7 +90,7 @@ def process_images(input_dir, known_encodings, known_names, model="hog", toleran
     
     for img_path in tqdm(image_files, desc="Scanning photos"):
         try:
-            image = face_recognition.load_image_file(img_path)
+            image = load_image_exif_corrected(img_path)  # <-- was: face_recognition.load_image_file
             face_locations = face_recognition.face_locations(image, model=model)
             face_encodings = face_recognition.face_encodings(image, face_locations)
             
@@ -232,8 +245,8 @@ def draw_boxes_on_images(results, output_dir):
     
     for result in tqdm(results, desc="Drawing boxes"):
         try:
-            # Load image
-            image = Image.open(result['image_path'])
+            # Load image with EXIF correction so boxes align with detection coordinates
+            image = Image.fromarray(load_image_exif_corrected(result['image_path']))  # <-- was: Image.open
             draw = ImageDraw.Draw(image)
             
             # Try to load a font, fall back to default
