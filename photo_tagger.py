@@ -301,7 +301,8 @@ def main():
     parser = argparse.ArgumentParser(
         description='Tag photos with face recognition. Known people by name, unknowns clustered or skipped.'
     )
-    parser.add_argument('--input', '-i', required=True, help='Directory containing photos to tag')
+    default_input = os.environ.get('PHOTO_INPUT_DIR', '/home/jd/photos/Photos-2018-JDT')
+    parser.add_argument('--input', '-i', default=default_input, help='Directory containing photos to tag')
     parser.add_argument('--output', '-o', required=True, help='Output directory for results')
     parser.add_argument('--known', '-k', help='Directory of known faces (subfolders named after people)')
     parser.add_argument('--model', choices=['hog', 'cnn'], default='hog',
