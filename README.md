@@ -1,73 +1,104 @@
-# Photo Tagger
+# Photo Tagger & Downloader Toolkit
 
-Hybrid face recognition CLI tool for bulk-tagging people in photos.
+A complete hybrid face recognition and cloud photo downloading CLI toolkit. This project provides tools to efficiently download photos from Dropbox and perform bulk face-tagging, either by recognizing known people or clustering unknown faces.
+
+## Table of Contents
+- [Features](#features)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage](#usage)
+  - [Downloading Photos (`photo-dl.py`)](#downloading-photos-photo-dlpy)
+  - [Tagging Photos (`photo_tagger.py`)](#tagging-photos-photo_taggerpy)
+- [Output](#output)
+- [Tips](#tips)
+- [Troubleshooting](#troubleshooting)
 
 ## Features
 
-- **Supervised**: Tag known people by name using a reference folder
-- **Unsupervised**: Cluster unknown faces (optional)
-- **Hybrid**: Mix of both — known people get names, unknowns get clustered or skipped
-- **Fast**: Uses HOG model by default (CPU-friendly), optional CNN for GPU acceleration
-- **Flexible output**: JSON, CSV, or both
-- **Visual**: Optionally generate images with labeled bounding boxes
+### Downloader (`photo-dl.py`)
+- **Server-Side Search**: Uses Dropbox's `files_search_v2` API to quickly filter image files before downloading.
+- **Concurrent Downloads**: Multi-threaded downloading (via `ThreadPoolExecutor`) bypasses sequential network bottlenecks.
+- **Resume & Indexing**: Saves progress to a `.dropbox_index_{year}.json` file so interrupted runs can resume instantly.
+- **Integrity Checks**: Validates local file sizes against Dropbox metadata to automatically detect and fix partial downloads.
+
+### Tagger (`photo_tagger.py`)
+- **Supervised Tagging**: Identifies known people by name using a reference directory of faces.
+- **Unsupervised Clustering**: Groups unknown faces together automatically (optional).
+- **Hybrid Approach**: Tags known people and clusters/skips the rest.
+- **Visual Output**: Can generate copies of your photos with colored bounding boxes and labels drawn over faces.
+- **Performance**: Uses HOG model by default (CPU-friendly) with optional CNN support for GPU acceleration.
 
 ## Installation
 
-```bash
-# Create virtual environment
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+Because this project uses several data science and image processing libraries, it is recommended to run it inside a Python virtual environment.
 
-# Install dependencies
+```bash
+# Create and activate a virtual environment
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Install all dependencies
 pip install -r requirements.txt
 ```
 
-## Quick Start
+## Configuration
 
-### 1. Set up known faces (optional, for supervised tagging)
+Both scripts support loading secrets and configurations from a `.env` file to prevent hardcoding sensitive information.
 
-```
-known_faces/
-├── Alice/
-│   ├── alice_01.jpg
-│   └── alice_02.jpg
-├── Bob/
-│   ├── bob_01.jpg
-│   └── bob_02.jpg
-└── Mom/
-    └── mom_photo.jpg
-```
+Create a `.env` file in the root directory:
 
-### 2. Run the tagger
+```env
+# Required for photo-dl.py
+DROPBOX_TOKEN=your_dropbox_access_token_here
 
-```bash
-# Basic: just tag known people, ignore unknowns
-python photo_tagger.py --input ~/Photos/2024 --output ./results --known ./known_faces
-
-# Cluster unknowns too
-python photo_tagger.py --input ~/Photos/2024 --output ./results --known ./known_faces --cluster-unknowns
-
-# Full: cluster unknowns + draw boxes on images
-python photo_tagger.py --input ~/Photos/2024 --output ./results \
-    --known ./known_faces --cluster-unknowns --draw-boxes --format both
+# Optional defaults for photo_tagger.py
+PHOTO_INPUT_DIR=/path/to/your/photos
 ```
 
 ## Usage
 
-```
-python photo_tagger.py --input DIR --output DIR [options]
+### Downloading Photos (`photo-dl.py`)
 
-Options:
-  --input, -i           Directory containing photos to tag (required)
-  --output, -o          Output directory for results (required)
-  --known, -k           Directory of known faces (subfolders = person names)
-  --model               Face detection: 'hog' (CPU, default) or 'cnn' (GPU)
-  --tolerance, -t       Matching strictness (default: 0.6, lower = stricter)
-  --cluster-unknowns    Group unknown faces into clusters
-  --min-cluster-size    Minimum faces to form a cluster (default: 2)
-  --draw-boxes          Create images with labeled bounding boxes
-  --format              Output: 'json', 'csv', or 'both' (default: json)
-  --save-encodings      Save face encodings to pickle file for reuse
+Download all photos from a specific year from your Dropbox `Camera Uploads` folder.
+
+```bash
+# Basic usage (downloads 2021 photos to a 'photos' directory)
+python photo-dl.py --year 2021 --output photos
+
+# Dry run (list files without downloading)
+python photo-dl.py --year 2021 --dry-run
+
+# Resume an interrupted run
+python photo-dl.py --year 2021 --output photos --resume
+
+# Re-download only previously failed files
+python photo-dl.py --year 2021 --output photos --resume --retry-failed
+```
+
+### Tagging Photos (`photo_tagger.py`)
+
+Before supervised tagging, set up a directory of known faces like this:
+```text
+known_faces/
+├── Alice/
+│   ├── alice_01.jpg
+│   └── alice_02.jpg
+└── Bob/
+    └── bob_01.jpg
+```
+
+Run the tagger:
+
+```bash
+# Basic: just tag known people, ignore unknowns
+python photo_tagger.py --input photos --output ./results --known ./known_faces
+
+# Cluster unknowns too
+python photo_tagger.py --input photos --output ./results --known ./known_faces --cluster-unknowns
+
+# Full: cluster unknowns + draw colored bounding boxes on images
+python photo_tagger.py --input photos --output ./results \
+    --known ./known_faces --cluster-unknowns --draw-boxes --format both
 ```
 
 ## Output
@@ -76,14 +107,14 @@ Options:
 ```json
 [
   {
-    "image_path": "/home/user/Photos/2024/party_01.jpg",
+    "image_path": "photos/party_01.jpg",
     "person": "Alice",
     "type": "known",
     "confidence": 0.89,
     "face_location": [120, 450, 280, 290]
   },
   {
-    "image_path": "/home/user/Photos/2024/party_01.jpg",
+    "image_path": "photos/party_01.jpg",
     "person": "unknown_1",
     "type": "clustered",
     "confidence": null,
@@ -93,25 +124,23 @@ Options:
 ```
 
 ### CSV format (`tags.csv`)
-Same data as JSON, in tabular form.
+The same data as JSON, but in tabular form.
 
 ### Tagged images (`tagged_images/`)
-Copies of original images with colored bounding boxes and labels:
+If ran with `--draw-boxes`, copies of original images are saved here with colored bounding boxes and labels:
 - **Green**: Known person
 - **Blue**: Clustered unknown
 - **Orange**: Unclustered unknown
 
 ## Tips
 
-- **Start small**: Test on a few photos first to tune `--tolerance`
-- **CNN model**: Use `--model cnn` if you have a GPU for better accuracy
-- **Clustering**: HDBSCAN is used if available (better than DBSCAN), falls back to DBSCAN
-- **Performance**: First run is slow (encoding faces). Use `--save-encodings` to cache.
+- **Start small**: Test the tagger on a few photos first to tune `--tolerance`.
+- **CNN model**: Use `--model cnn` if you have a GPU for much better accuracy.
+- **Clustering**: HDBSCAN is used if available (better than DBSCAN) and falls back to DBSCAN if missing.
+- **Performance**: The first run is slow as it encodes faces. Use `--save-encodings` to cache them.
 
 ## Troubleshooting
 
-**"No faces found"**: Try lowering tolerance or using CNN model
-
-**"Poor clustering"**: Adjust `--min-cluster-size` — higher values = fewer, tighter clusters
-
-**Slow performance**: Use `--model hog` (default) and ensure dlib is compiled with optimizations
+- **"No faces found"**: Try lowering tolerance or using the CNN model.
+- **"Poor clustering"**: Adjust `--min-cluster-size` — higher values = fewer, tighter clusters.
+- **Slow performance**: Ensure you are using the default `--model hog`. If it's still slow, ensure `dlib` is compiled with optimizations.
