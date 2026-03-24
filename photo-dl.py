@@ -190,9 +190,15 @@ def human_size(n_bytes: int) -> str:
         n_bytes /= 1024
     return f"{n_bytes:.1f} TB"
 
-def _build_local_path(entry, output_dir: Path, folder: str, flat: bool) -> Path:
+def _build_local_path(entry, output_dir: Path, folder: str, flat: bool, by_month: bool = False) -> Path:
+    if by_month:
+        dt = entry.client_modified or entry.server_modified
+        month_folder = f"{dt.month:02d}" if dt else "unknown_month"
+        return output_dir / month_folder / Path(entry.path_display).name
+
     if flat:
         return output_dir / Path(entry.path_display).name
+        
     rel = entry.path_display.lstrip("/")
     if folder:
         prefix = folder.strip("/") + "/"
@@ -212,6 +218,7 @@ def main():
     parser.add_argument("--output",       default=None, help="Local output directory (default: ./dropbox_photos_YEAR)")
     parser.add_argument("--dry-run",      action="store_true", help="List matching files without downloading")
     parser.add_argument("--flat",         action="store_true", help="Save all files in one flat directory (no subdirs)")
+    parser.add_argument("--by-month",     action="store_true", help="Sort downloaded files into subdirectories by month (e.g. 01, 02)")
     parser.add_argument("--resume",       action="store_true", help="Skip scan and reuse the saved index")
     parser.add_argument("--retry-failed", action="store_true", help="With --resume, re-attempt previously failed files only")
     args = parser.parse_args()
@@ -255,7 +262,7 @@ def main():
         new_count = 0
         try:
             for entry in search_photos(dbx, args.folder.rstrip("/"), args.year):
-                local_path = _build_local_path(entry, output_dir, args.folder, args.flat)
+                local_path = _build_local_path(entry, output_dir, args.folder, args.flat, args.by_month)
                 key = entry.id  # stable Dropbox file ID
                 if key not in index["files"]:
                     index["files"][key] = entry_to_record(entry, local_path)

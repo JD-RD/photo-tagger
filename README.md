@@ -88,6 +88,9 @@ Download all photos from a specific year from your Dropbox `Camera Uploads` fold
 # Basic usage (downloads 2021 photos to a 'photos' directory)
 .venv/bin/python photo-dl.py --year 2021 --output photos
 
+# Organize downloaded photos into subdirectories by month (e.g., photos/01, photos/02)
+.venv/bin/python photo-dl.py --year 2021 --output photos --by-month
+
 # Dry run (list files without downloading)
 .venv/bin/python photo-dl.py --year 2021 --dry-run
 
