@@ -8,6 +8,7 @@ A complete hybrid face recognition and cloud photo downloading CLI toolkit. This
 - [Configuration](#configuration)
 - [Usage](#usage)
   - [Downloading Photos (`photo-dl.py`)](#downloading-photos-photo-dlpy)
+  - [Preparing Reference Faces (`prep_references.py`)](#preparing-reference-faces-prep_referencespy)
   - [Tagging Photos (`photo_tagger.py`)](#tagging-photos-photo_taggerpy)
 - [Output](#output)
 - [Tips](#tips)
@@ -20,6 +21,11 @@ A complete hybrid face recognition and cloud photo downloading CLI toolkit. This
 - **Concurrent Downloads**: Multi-threaded downloading (via `ThreadPoolExecutor`) bypasses sequential network bottlenecks.
 - **Resume & Indexing**: Saves progress to a `.dropbox_index_{year}.json` file so interrupted runs can resume instantly.
 - **Integrity Checks**: Validates local file sizes against Dropbox metadata to automatically detect and fix partial downloads.
+
+### Reference Prepper (`prep_references.py`)
+- **Interactive UI**: A graphical window pops up showing automatically cropped faces.
+- **Rapid Tagging**: Type the name of the person directly in the terminal to sort faces into folders instantly.
+- **Skip & Exit**: Quickly press Enter to skip blurry/unknown faces, or type 'QUIT' to close the tool.
 
 ### Tagger (`photo_tagger.py`)
 - **Supervised Tagging**: Identifies known people by name using a reference directory of faces.
@@ -75,17 +81,26 @@ Download all photos from a specific year from your Dropbox `Camera Uploads` fold
 .venv/bin/python photo-dl.py --year 2021 --output photos --resume --retry-failed
 ```
 
-### Tagging Photos (`photo_tagger.py`)
+### Preparing Reference Faces (`prep_references.py`)
 
-Before supervised tagging, set up a directory of known faces like this:
+Before supervised tagging, you need a directory of known faces. This interactive tool makes it easy to build one from your downloaded photos by auto-cropping faces and asking you for names.
+
+```bash
+# Scan photos, auto-crop faces, and interactively build the 'known_faces' directory
+.venv/bin/python prep_references.py --input photos --output known_faces
+```
+
+Once finished, your directory will automatically look like this:
 ```text
 known_faces/
 ├── Alice/
-│   ├── alice_01.jpg
-│   └── alice_02.jpg
+│   ├── alice_2b4a1f.jpg
+│   └── alice_8a7d3c.jpg
 └── Bob/
-    └── bob_01.jpg
+    └── bob_f7b19e.jpg
 ```
+
+### Tagging Photos (`photo_tagger.py`)
 
 Run the tagger:
 

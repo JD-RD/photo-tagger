@@ -3,9 +3,10 @@
 ## Project Overview
 This is a Python-based toolkit designed to download photos from Dropbox and perform hybrid face recognition to tag people within those photos. 
 
-The project consists of two primary CLI tools:
+The project consists of three primary CLI tools:
 1. **`photo-dl.py`**: A high-performance Dropbox photo downloader that fetches images by year. It features server-side search optimization, concurrent multi-threaded downloads, and an indexing system (`.dropbox_index_*.json`) to resume interrupted runs and skip already-downloaded files.
-2. **`photo_tagger.py`**: A hybrid face recognition tool that tags known people by name using a reference directory, and optionally clusters unknown faces using HDBSCAN or DBSCAN. It can output metadata to JSON and CSV formats, and optionally generate copies of images with labeled bounding boxes.
+2. **`prep_references.py`**: An interactive GUI tool to rapidly build a `known_faces` directory by auto-detecting and cropping faces from downloaded photos and prompting the user for their names.
+3. **`photo_tagger.py`**: A hybrid face recognition tool that tags known people by name using a reference directory, and optionally clusters unknown faces using HDBSCAN or DBSCAN. It can output metadata to JSON and CSV formats, and optionally generate copies of images with labeled bounding boxes.
 
 ## Building and Running
 
@@ -38,7 +39,13 @@ PHOTO_INPUT_DIR=/path/to/your/photos
 .venv/bin/python photo-dl.py --year 2021 --output photos --resume --retry-failed
 ```
 
-**2. Tagging Photos:**
+**2. Preparing Reference Faces:**
+```bash
+# Scan downloaded photos, display cropped faces interactively, and build known_faces directory
+.venv/bin/python prep_references.py --input photos --output known_faces
+```
+
+**3. Tagging Photos:**
 ```bash
 # Tag known faces and output results
 .venv/bin/python photo_tagger.py --input photos --output ./results --known ./known_faces

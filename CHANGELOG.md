@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Added
+- **`prep_references.py`**: An interactive GUI helper tool to quickly build a high-quality `known_faces/` directory. It auto-detects faces in downloaded photos, crops them, displays them, and asks the user to name them via the terminal.
+
 ## [1.0.0] - 2026-03-23
 
 ### Added
