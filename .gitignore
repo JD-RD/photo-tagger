@@ -1,0 +1,7 @@
+.env
+.venv/
+photos/
+dropbox_photos_*/
+.dropbox_index_*.json
+__pycache__/
+*.pyc

@@ -13,6 +13,9 @@ import argparse
 from pathlib import Path
 from collections import defaultdict
 
+from dotenv import load_dotenv
+load_dotenv()
+
 import cv2
 import face_recognition
 from PIL import Image, ImageDraw, ImageFont, ImageOps
