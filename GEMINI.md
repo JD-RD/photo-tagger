@@ -32,19 +32,19 @@ PHOTO_INPUT_DIR=/path/to/your/photos
 **1. Downloading Photos:**
 ```bash
 # Download photos from 2021 to the 'photos' directory
-python photo-dl.py --year 2021 --output photos
+.venv/bin/python photo-dl.py --year 2021 --output photos
 
 # Resume an interrupted download and re-try any failed files
-python photo-dl.py --year 2021 --output photos --resume --retry-failed
+.venv/bin/python photo-dl.py --year 2021 --output photos --resume --retry-failed
 ```
 
 **2. Tagging Photos:**
 ```bash
 # Tag known faces and output results
-python photo_tagger.py --input photos --output ./results --known ./known_faces
+.venv/bin/python photo_tagger.py --input photos --output ./results --known ./known_faces
 
 # Tag known faces, cluster unknown faces, and generate images with bounding boxes
-python photo_tagger.py --input photos --output ./results --known ./known_faces --cluster-unknowns --draw-boxes
+.venv/bin/python photo_tagger.py --input photos --output ./results --known ./known_faces --cluster-unknowns --draw-boxes
 ```
 
 ## Development Conventions

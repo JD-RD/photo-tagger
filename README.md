@@ -63,16 +63,16 @@ Download all photos from a specific year from your Dropbox `Camera Uploads` fold
 
 ```bash
 # Basic usage (downloads 2021 photos to a 'photos' directory)
-python photo-dl.py --year 2021 --output photos
+.venv/bin/python photo-dl.py --year 2021 --output photos
 
 # Dry run (list files without downloading)
-python photo-dl.py --year 2021 --dry-run
+.venv/bin/python photo-dl.py --year 2021 --dry-run
 
 # Resume an interrupted run
-python photo-dl.py --year 2021 --output photos --resume
+.venv/bin/python photo-dl.py --year 2021 --output photos --resume
 
 # Re-download only previously failed files
-python photo-dl.py --year 2021 --output photos --resume --retry-failed
+.venv/bin/python photo-dl.py --year 2021 --output photos --resume --retry-failed
 ```
 
 ### Tagging Photos (`photo_tagger.py`)
@@ -91,13 +91,13 @@ Run the tagger:
 
 ```bash
 # Basic: just tag known people, ignore unknowns
-python photo_tagger.py --input photos --output ./results --known ./known_faces
+.venv/bin/python photo_tagger.py --input photos --output ./results --known ./known_faces
 
 # Cluster unknowns too
-python photo_tagger.py --input photos --output ./results --known ./known_faces --cluster-unknowns
+.venv/bin/python photo_tagger.py --input photos --output ./results --known ./known_faces --cluster-unknowns
 
 # Full: cluster unknowns + draw colored bounding boxes on images
-python photo_tagger.py --input photos --output ./results \
+.venv/bin/python photo_tagger.py --input photos --output ./results \
     --known ./known_faces --cluster-unknowns --draw-boxes --format both
 ```
 

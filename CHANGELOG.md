@@ -16,6 +16,10 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - **`photo_tagger.py`**: Integrated `python-dotenv` to automatically load local configuration (like `PHOTO_INPUT_DIR`) from a `.env` file.
 - **`requirements.txt`**: Unified dependencies for both scripts, adding `python-dotenv` and `dropbox`.
+- **Documentation**: Updated `README.md` and `GEMINI.md` to use `.venv/bin/python` or `python3` for better compatibility with Linux distributions (like Linux Mint) where the `python` command is unmapped.
+
+### Fixed
+- **Linux Compatibility**: Resolved "command 'python' not found" errors by explicitly documenting the use of `python3` and virtual environment paths.
 
 ### Security
 - **Credential Protection**: Migrated hardcoded tokens and paths to environment variables.
