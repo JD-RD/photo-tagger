@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 ### Added
+- **`auth_dropbox.py`**: A new interactive script to handle OAuth2 authorization and generate a permanent `DROPBOX_REFRESH_TOKEN` to prevent manual token expirations.
+- **Refresh Token Support**: Modified `photo-dl.py` to seamlessly accept a refresh token (alongside an App Key and Secret) from the `.env` file for permanent authentication.
 - **`organize_photos.py`**: A new standalone utility script that reads the `tags.json` output from `photo_tagger.py` and copies the tagged photos into separate subdirectories named after each person. If a photo contains multiple people, it is copied into each person's respective directory.
 - **`prep_references.py`**: An interactive GUI helper tool to quickly build a high-quality `known_faces/` directory. It auto-detects faces in downloaded photos, crops them, displays them, and asks the user to name them via the terminal.
 

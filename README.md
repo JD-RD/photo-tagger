@@ -60,12 +60,23 @@ Both scripts support loading secrets and configurations from a `.env` file to pr
 Create a `.env` file in the root directory:
 
 ```env
-# Required for photo-dl.py
+# Option 1: Temporary (expires in 4 hours)
 DROPBOX_TOKEN=your_dropbox_access_token_here
+
+# Option 2: Permanent (requires App Key/Secret and running auth_dropbox.py)
+DROPBOX_APP_KEY=your_app_key_here
+DROPBOX_APP_SECRET=your_app_secret_here
+DROPBOX_REFRESH_TOKEN=generated_refresh_token_here
 
 # Optional defaults for photo_tagger.py
 PHOTO_INPUT_DIR=/path/to/your/photos
 ```
+
+### Permanent Dropbox Authentication (`auth_dropbox.py`)
+Dropbox access tokens expire every 4 hours. To avoid regenerating them manually, you can use the interactive `auth_dropbox.py` script to generate a permanent `DROPBOX_REFRESH_TOKEN`.
+1. Add your `DROPBOX_APP_KEY` and `DROPBOX_APP_SECRET` to your `.env` file.
+2. Run `.venv/bin/python auth_dropbox.py`.
+3. Follow the on-screen instructions to authorize the app and automatically save the refresh token.
 
 ## Usage
 

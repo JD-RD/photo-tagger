@@ -36,14 +36,26 @@ PHOTO_EXTENSIONS = {
     ".nef", ".arw", ".dng", ".orf", ".rw2"
 }
 
-def get_dropbox_client(token: str):
+def get_dropbox_client(token=None, app_key=None, app_secret=None, refresh_token=None):
     try:
         import dropbox
     except ImportError:
         print("❌ dropbox package not found. Run: pip install dropbox tqdm")
         sys.exit(1)
 
-    dbx = dropbox.Dropbox(token)
+    if refresh_token and app_key and app_secret:
+        dbx = dropbox.Dropbox(
+            oauth2_refresh_token=refresh_token,
+            app_key=app_key,
+            app_secret=app_secret
+        )
+    elif token:
+        dbx = dropbox.Dropbox(token)
+    else:
+        print("❌ No authentication provided.")
+        print("Use a DROPBOX_TOKEN, or use DROPBOX_APP_KEY, DROPBOX_APP_SECRET, and DROPBOX_REFRESH_TOKEN.")
+        sys.exit(1)
+
     try:
         account = dbx.users_get_current_account()
         print(f"✅ Connected as: {account.name.display_name} ({account.email})\n")
@@ -206,8 +218,13 @@ def main():
 
     # -- Token resolution ------------------------------------------------------
     token = args.token or os.environ.get("DROPBOX_TOKEN")
-    if not token:
-        print("❌ No token provided. Use --token or set DROPBOX_TOKEN env var.")
+    app_key = os.environ.get("DROPBOX_APP_KEY")
+    app_secret = os.environ.get("DROPBOX_APP_SECRET")
+    refresh_token = os.environ.get("DROPBOX_REFRESH_TOKEN")
+
+    if not token and not (app_key and app_secret and refresh_token):
+        print("❌ No valid authentication found in environment or arguments.")
+        print("   Set DROPBOX_TOKEN, OR set DROPBOX_APP_KEY, DROPBOX_APP_SECRET, and DROPBOX_REFRESH_TOKEN.")
         sys.exit(1)
 
     # -- Output directory ------------------------------------------------------
@@ -219,7 +236,12 @@ def main():
     idx_path = index_path(output_dir, args.year)
 
     # -- Connect ---------------------------------------------------------------
-    dbx = get_dropbox_client(token)
+    dbx = get_dropbox_client(
+        token=token,
+        app_key=app_key,
+        app_secret=app_secret,
+        refresh_token=refresh_token
+    )
 
     # -- Scan or resume --------------------------------------------------------
     index = load_index(idx_path)
