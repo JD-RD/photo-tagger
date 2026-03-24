@@ -11,6 +11,15 @@ import uuid
 from pathlib import Path
 
 import cv2
+
+# Fix annoying OpenCV Qt font warning on Linux by ensuring the missing directory exists
+try:
+    cv2_dir = Path(cv2.__file__).parent
+    qt_fonts_dir = cv2_dir / "qt" / "fonts"
+    qt_fonts_dir.mkdir(parents=True, exist_ok=True)
+except Exception:
+    pass
+
 import face_recognition
 import numpy as np
 from PIL import Image, ImageOps
