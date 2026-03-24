@@ -24,6 +24,7 @@ All notable changes to this project will be documented in this file.
 - **Documentation**: Updated `README.md` and `GEMINI.md` to use `.venv/bin/python` or `python3` for better compatibility with Linux distributions (like Linux Mint) where the `python` command is unmapped.
 
 ### Fixed
+- **Face Recognition Models Error**: Resolved the `ModuleNotFoundError: No module named 'pkg_resources'` by pinning `setuptools==69.5.1` in `requirements.txt`. This ensures the models used by `face_recognition` can be correctly loaded.
 - **Linux Compatibility**: Resolved "command 'python' not found" errors by explicitly documenting the use of `python3` and virtual environment paths.
 
 ### Security
