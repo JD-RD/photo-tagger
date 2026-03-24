@@ -54,4 +54,6 @@ python photo_tagger.py --input photos --output ./results --known ./known_faces -
   - Network-bound tasks (like downloading) should leverage concurrency, such as `concurrent.futures.ThreadPoolExecutor`.
   - CPU-bound tasks (like face encoding) should offer configurable models (e.g., `--model hog` vs `cnn`) and provide mechanisms to cache results (e.g., `--save-encodings`).
 - **Data Privacy & Git:** Ensure that `.env` files, downloaded photo directories, temporary indexes (`.dropbox_index_*.json`), and the `.venv/` folder remain in `.gitignore` to prevent leaking private photos or credentials to version control.
-- **Documentation:** Log significant updates, new features, and security improvements in `CHANGELOG.md`.
+- **Documentation:**
+  - **Mandatory:** ALWAYS update `CHANGELOG.md` with a summary of any code modifications, new features, or security improvements made during a session.
+  - Follow the existing formatting in `CHANGELOG.md` (e.g., categorizing changes under `Added`, `Changed`, `Fixed`, or `Security`).
